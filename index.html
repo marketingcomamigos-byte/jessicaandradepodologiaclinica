@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa - Jessica Andrade Podologia Clínica</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #12A5B3 0%, #0D8B97 100%);
+            color: white;
+            padding: 25px 0 20px;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #FF6B6B, #4ECDC4, #FFD166, #6A0572, #118AB2, #06D6A0);
+            z-index: 1;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            font-size: 25px;
+            color: #12A5B3;
+        }
+        
+        .header-text {
+            text-align: left;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            padding: 0;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.95;
+            margin-bottom: 0;
+            font-weight: 500;
+        }
+        
+        .map-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        #map {
+            height: 450px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+        
+        .buttons-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .route-btn, .appointment-btn-large {
+            color: white;
+            border: none;
+            padding: 14px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .route-btn {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        }
+        
+        .route-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
+        }
+        
+        .appointment-btn-large {
+            background: linear-gradient(135deg, #FF8C42 0%, #E67329 100%);
+        }
+        
+        .appointment-btn-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #E67329 0%, #CC5C13 100%);
+        }
+        
+        .social-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        
+        .social-container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .social-btn {
+            color: white;
+            border: 2px solid white;
+            padding: 12px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            text-decoration: none;
+        }
+        
+        .social-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            filter: brightness(1.1);
+        }
+        
+        .social-btn.instagram {
+            background: #E4405F;
+        }
+        
+        .social-btn.facebook {
+            background: #1877F2;
+        }
+        
+        .social-btn.whatsapp {
+            background: #25D366;
+        }
+        
+        .social-icon {
+            font-size: 1.2rem;
+        }
+        
+        .location-info {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-top: 8px;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        /* Seção de Tratamentos - Estilo Original */
+        .treatments-section {
+            margin-top: 40px;
+            padding: 30px 0;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .treatments-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #12A5B3;
+            font-size: 1.8rem;
+        }
+        
+        .treatments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 0 20px;
+        }
+        
+        .treatment-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        
+        .treatment-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .treatment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            border-color: #12A5B3;
+        }
+        
+        .treatment-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: inline-block;
+            padding: 10px;
+            border-radius: 8px;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+        
+        .treatment-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .treatment-description {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .treatment-details {
+            margin-top: 40px;
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            display: none;
+        }
+        
+        .treatment-details.active {
+            display: block;
+        }
+        
+        .treatment-detail-title {
+            color: #12A5B3;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .treatment-detail-content {
+            color: #555;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+        
+        .back-to-treatments {
+            display: block;
+            margin: 20px auto 0;
+            background: #12A5B3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .back-to-treatments:hover {
+            background: #0D8B97;
+        }
+
+        /* Seção Sobre Podologia - Estilo Atualizado */
+        .podology-section {
+            margin-top: 40px;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .podology-title {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #12A5B3;
+            font-size: 1.8rem;
+            position: relative;
+        }
+        
+        .podology-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: #12A5B3;
+            border-radius: 2px;
+        }
+        
+        .podology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 0 20px;
+        }
+        
+        .podology-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px 20px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        
+        .podology-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .podology-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+            border-color: #12A5B3;
+        }
+        
+        .podology-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            padding: 15px;
+            border-radius: 50%;
+            width: 90px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #12A5B3 0%, #0D8B97 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(18, 165, 179, 0.3);
+        }
+        
+        .podology-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .podology-details {
+            margin-top: 40px;
+            padding: 30px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        .podology-details.active {
+            display: block;
+        }
+        
+        .podology-detail-title {
+            color: #12A5B3;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .podology-detail-content {
+            color: #555;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+        
+        .back-to-podology {
+            display: block;
+            margin: 20px auto 0;
+            background: #12A5B3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .back-to-podology:hover {
+            background: #0D8B97;
+        }
+        
+        /* Seção Sobre Nós - Layout Elegante */
+        .about-section {
+            margin: 30px 0;
+            padding: 50px 0;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        
+        .about-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .about-title {
+            color: #12A5B3;
+            font-size: 2rem;
+            margin-bottom: 40px;
+            text-align: center;
+            font-weight: 700;
+            position: relative;
+        }
+        
+        .about-title::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #12A5B3, #0D8B97);
+            border-radius: 2px;
+        }
+        
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+        
+        .about-text {
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .about-text p {
+            margin-bottom: 25px;
+            text-align: justify;
+        }
+        
+        .about-text p:first-child {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.15rem;
+        }
+        
+        .about-info {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #12A5B3;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        
+        .info-item:hover {
+            transform: translateX(5px);
+            background: #e9ecef;
+        }
+        
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-icon {
+            font-size: 2.2rem;
+            margin-right: 20px;
+            color: #12A5B3;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .info-text {
+            color: #555;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #7f8c8d;
+            border-top: 1px solid #ecf0f1;
+            font-size: 0.9rem;
+        }
+
+        .foot-icon {
+            width: 35px;
+            height: 35px;
+            background: #12A5B3;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            font-size: 16px;
+            color: white;
+        }
+        
+        /* Estilo personalizado para o popup da clínica */
+        .clinic-popup .leaflet-popup-content-wrapper {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border-left: 4px solid #12A5B3;
+        }
+        
+        .clinic-popup .leaflet-popup-tip {
+            background: #12A5B3;
+        }
+        
+        /* Melhorias para mobile */
+        @media (max-width: 768px) {
+            .logo-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo-icon {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+            
+            .header-text {
+                text-align: center;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .buttons-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .about-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding: 0 20px;
+            }
+            
+            .podology-grid, .treatments-grid {
+                grid-template-columns: 1fr;
+                padding: 0 10px;
+            }
+            
+            .info-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .info-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header {
+                padding: 20px 0 15px;
+                margin-bottom: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+            }
+            
+            #map {
+                height: 400px;
+            }
+            
+            .route-btn, .appointment-btn-large {
+                padding: 12px 8px;
+                font-size: 1rem;
+            }
+            
+            .social-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .treatment-details, .podology-details {
+                padding: 20px;
+            }
+            
+            .about-section {
+                padding: 30px 0;
+            }
+            
+            .about-title {
+                font-size: 1.6rem;
+            }
+            
+            .about-text {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo-container">
+                <div class="logo-icon">👣</div>
+                <div class="header-text">
+                    <h1>Jessica Andrade Podologia Clínica</h1>
+                    <p class="subtitle">Cuidando da saúde dos seus pés com carinho e profissionalismo</p>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="map-container">
+            <div id="map"></div>
+            
+            <div class="buttons-container">
+                <button class="route-btn" id="route-btn">
+                    <span>👣</span> Como Chegar
+                </button>
+                <a href="https://wa.me/44998460231?text=Olá! Gostaria de agendar uma avaliação na Jessica Andrade Podologia Clínica" class="appointment-btn-large" target="_blank">
+                    <span>📅</span> Agendar Avaliação
+                </a>
+            </div>
+            <div class="location-info">
+                Clique para abrir a rota no Google Maps ou agendar sua avaliação via WhatsApp
+            </div>
+            
+            <div class="social-container" id="social-container">
+                <a href="https://www.instagram.com/jessicaandrade.podologia/" class="social-btn instagram" target="_blank">
+                    <span class="social-icon">📷</span>
+                    Instagram
+                </a>
+                
+                <a href="https://www.facebook.com/profile.php?id=61568565285725" class="social-btn facebook" target="_blank">
+                    <span class="social-icon">👥</span>
+                    Facebook
+                </a>
+                
+                <a href="https://wa.me/44998460231" class="social-btn whatsapp" target="_blank">
+                    <span class="social-icon">💬</span>
+                    WhatsApp
+                </a>
+            </div>
+        </div>
+        
+        <!-- Seção de Tratamentos -->
+        <div class="treatments-section">
+            <h2 class="treatments-title">Nossos Tratamentos</h2>
+            
+            <div class="treatments-grid" id="treatments-grid">
+                <div class="treatment-card" data-treatment="unha-encravada">
+                    <div class="treatment-icon" style="background-color: #FF6B6B; color: white;">👣</div>
+                    <h3 class="treatment-name">Unha Encravada</h3>
+                    <p class="treatment-description">Tratamento especializado para alívio imediato e correção definitiva</p>
+                </div>
+                
+                <div class="treatment-card" data-treatment="calos">
+                    <div class="treatment-icon" style="background-color: #4ECDC4; color: white;">👣</div>
+                    <h3 class="treatment-name">Calos e Calosidades</h3>
+                    <p class="treatment-description">Remoção segura e tratamento preventivo para evitar recorrência</p>
+                </div>
+                
+                <div class="treatment-card" data-treatment="micos-unha">
+                    <div class="treatment-icon" style="background-color: #FFD166; color: #333;">👣</div>
+                    <h3 class="treatment-name">Micose de Unha</h3>
+                    <p class="treatment-description">Tratamento eficaz para recuperar a saúde e aparência das unhas</p>
+                </div>
+                
+                <div class="treatment-card" data-treatment="fissuras">
+                    <div class="treatment-icon" style="background-color: #6A0572; color: white;">👣</div>
+                    <h3 class="treatment-name">Fissura nos Pés</h3>
+                    <p class="treatment-description">Hidratação profunda e tratamento para rachaduras nos calcanhares</p>
+                </div>
+                
+                <div class="treatment-card" data-treatment="pes-diabeticos">
+                    <div class="treatment-icon" style="background-color: #118AB2; color: white;">👣</div>
+                    <h3 class="treatment-name">Pés Diabéticos</h3>
+                    <p class="treatment-description">Cuidados especiais para prevenção e tratamento de complicações</p>
+                </div>
+                
+                <div class="treatment-card" data-treatment="profilaxia">
+                    <div class="treatment-icon" style="background-color: #06D6A0; color: white;">👣</div>
+                    <h3 class="treatment-name">Profilaxia Preventiva</h3>
+                    <p class="treatment-description">Manutenção regular para manter a saúde dos pés sempre em dia</p>
+                </div>
+            </div>
+            
+            <!-- Área de detalhes dos tratamentos -->
+            <div class="treatment-details" id="treatment-details">
+                <!-- O conteúdo será preenchido dinamicamente via JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Seção Sobre Podologia -->
+        <section class="podology-section">
+            <h2 class="podology-title">Entenda a Podologia</h2>
+            
+            <div class="podology-grid" id="podology-grid">
+                <div class="podology-card" data-podology="o-que-e">
+                    <div class="podology-icon">👨‍⚕️</div>
+                    <h3 class="podology-name">O Que é Podologia?</h3>
+                </div>
+                
+                <div class="podology-card" data-podology="o-que-faz">
+                    <div class="podology-icon">🔍</div>
+                    <h3 class="podology-name">O Que Faz um Podologista?</h3>
+                </div>
+                
+                <div class="podology-card" data-podology="diferenca">
+                    <div class="podology-icon">💅</div>
+                    <h3 class="podology-name">Diferença entre Podologia e Pedicure</h3>
+                </div>
+                
+                <div class="podology-card" data-podology="importancia">
+                    <div class="podology-icon">❤️</div>
+                    <h3 class="podology-name">Por Que é Importante?</h3>
+                </div>
+            </div>
+            
+            <!-- Área de detalhes sobre podologia -->
+            <div class="podology-details" id="podology-details">
+                <!-- O conteúdo será preenchido dinamicamente via JavaScript -->
+            </div>
+        </section>
+        
+        <!-- Seção Sobre Nós - Layout Elegante -->
+        <div class="about-section" id="about-section">
+            <h2 class="about-title">Sobre Nós</h2>
+            
+            <div class="about-content">
+                <div class="about-text">
+                    <p>Especializados em podologia, oferecemos tratamentos completos para cuidar da saúde e do bem-estar dos seus pés. Atendemos problemas como unha encravada, micose nas unhas, calos e calosidades, fissuras nos pés e outros cuidados essenciais que promovem alívio das dores, melhoram a estética, previnem micoses e proporcionam mais conforto ao caminhar.</p>
+                    
+                    <p>Mais do que uma clínica de podologia, somos um espaço dedicado ao seu cuidado e qualidade de vida. Aqui, cada detalhe é pensado para que você se sinta acolhido em um ambiente aconchegante, com atendimento personalizado e técnicas modernas que garantem resultados visíveis e duradouros. Dê aos seus pés o cuidado que eles merecem — com carinho, atenção e profissionalismo.</p>
+                </div>
+                
+                <div class="about-info">
+                    <div class="info-item">
+                        <div class="info-icon">📍</div>
+                        <div class="info-text">
+                            <strong>Localização</strong><br>
+                            Avenida das Palmeiras, 2271 - Jd Paris<br>
+                            Maringá - PR
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">⏰</div>
+                        <div class="info-text">
+                            <strong>Horário de Atendimento</strong><br>
+                            Segunda a Sexta: 09:00 às 19:00<br>
+                            Sábado: 09:00 às 16:00
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>© 2025 Jessica Andrade Podologia Clínica - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Inicializar o mapa
+        const map = L.map('map').setView([-23.3835464, -51.9556292], 15);
+        
+        // Adicionar camada do mapa
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Coordenadas da clínica
+        const clinicCoords = L.latLng(-23.3835464, -51.9556292);
+        
+        // Criar ícone personalizado sem animação
+        const clinicIcon = L.divIcon({
+            html: '<div class="foot-icon">👣</div>',
+            className: 'custom-clinic-icon',
+            iconSize: [35, 35],
+            iconAnchor: [17, 35]
+        });
+        
+        // Adicionar marcador da clínica
+        const clinicMarker = L.marker(clinicCoords, {icon: clinicIcon}).addTo(map);
+        
+        // Criar popup personalizado
+        const clinicPopup = L.popup({
+            className: 'clinic-popup',
+            offset: [0, -15], // Posiciona o popup acima do marcador
+            closeButton: true,
+            autoClose: false,
+            closeOnEscapeKey: true
+        })
+        .setLatLng(clinicCoords)
+        .setContent(`
+            <div style="text-align: center; min-width: 200px;">
+                <h3 style="margin: 5px 0; color: #12A5B3; font-size: 1.1rem;">Jessica Andrade Podologia Clínica</h3>
+                <p style="margin: 5px 0; color: #666; font-size: 0.9rem;">Avenida das Palmeiras, 2271 - Jd Paris</p>
+                <p style="margin: 5px 0; font-size: 0.8rem; color: #12A5B3; font-style: italic;">Sua saúde começa pelos pés!</p>
+            </div>
+        `);
+        
+        // Abrir popup automaticamente ao carregar o mapa
+        clinicPopup.openOn(map);
+        
+        // Adicionar evento de clique para reabrir o popup
+        clinicMarker.on('click', function() {
+            clinicPopup.openOn(map);
+        });
+        
+        // Adicionar landmarks em cinza escuro
+        const landmarks = [
+            {
+                coords: [-23.4054048, -51.9399185],
+                name: 'UEM - Universidade Estadual de Maringá',
+                icon: '🎓'
+            },
+            {
+                coords: [-23.4136111, -51.9558333],
+                name: 'Shopping Mandacaru Boulevard',
+                icon: '🛍️'
+            },
+            {
+                coords: [-23.392501, -51.9559175],
+                name: 'Supermercado Amigão - Mandacaru',
+                icon: '🛒'
+            },
+            {
+                coords: [-23.3996715, -51.9275856],
+                name: 'Supermercado Amigão - Morangueira',
+                icon: '🛒'
+            },
+            {
+                coords: [-23.3814227, -51.9377389],
+                name: 'Supermercado Amigão - Palmeiras',
+                icon: '🛒'
+            },
+            {
+                coords: [-23.4009955, -51.956625],
+                name: 'HU - Hospital Universitário',
+                icon: '🏥'
+            },
+            {
+                coords: [-23.3949241, -51.9392577],
+                name: 'Posto Dubai',
+                icon: '⛽'
+            },
+            {
+                coords: [-23.3836401, -51.9583471],
+                name: 'Igreja Bola de Neve',
+                icon: '⛪'
+            }
+        ];
+        
+        // Adicionar marcadores dos pontos de referência em cinza escuro
+        landmarks.forEach(landmark => {
+            const landmarkIcon = L.divIcon({
+                html: `<div style="background-color: #34495e; color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">${landmark.icon}</div>`,
+                className: 'custom-landmark-icon',
+                iconSize: [35, 35],
+                iconAnchor: [17, 35]
+            });
+            
+            L.marker(landmark.coords, {icon: landmarkIcon}).addTo(map)
+                .bindPopup(`<b style="color: #34495e">${landmark.name}</b>`);
+        });
+        
+        // Função para abrir rota no Google Maps
+        function openGoogleMapsRoute() {
+            const clinicLat = -23.3835464;
+            const clinicLng = -51.9556292;
+            const googleMapsUrl = `https://www.google.com/maps/dir//${clinicLat},${clinicLng}`;
+            window.open(googleMapsUrl, '_blank');
+        }
+        
+        // Event listener para o botão de rota
+        document.getElementById('route-btn').addEventListener('click', openGoogleMapsRoute);
+        
+        // Fechar popup quando clicar em qualquer lugar do mapa
+        map.on('click', function() {
+            map.closePopup();
+        });
+        
+        // Dados sobre podologia
+        const podologyData = {
+            'o-que-e': {
+                title: 'O Que é Podologia?',
+                description: 'A Podologia é a ciência da área da saúde que estuda, previne, diagnostica e trata as alterações dos pés e suas repercussões no corpo humano. É uma especialidade que cuida da saúde dos pés de forma integral, utilizando conhecimentos médicos e técnicas específicas para tratar problemas podológicos. Diferente de uma simples pedicure, a podologia trabalha com foco na saúde e bem-estar dos pés, utilizando equipamentos esterilizados e procedimentos seguros.'
+            },
+            'o-que-faz': {
+                title: 'O Que Faz um Podologista?',
+                description: 'O podologista é um profissional de saúde especializado no diagnóstico e tratamento das patologias dos pés. Entre as principais atribuições estão: tratamento de unhas encravadas, remoção de calos e calosidades, tratamento de micoses de unha e pele, cuidados com fissuras e rachaduras nos calcanhares, tratamento de verrugas plantares (olho de peixe) e cuidados especiais com pés diabéticos. O podologista também orienta sobre prevenção, calçados adequados e cuidados diários para manter a saúde podológica.'
+            },
+            'diferenca': {
+                title: 'Diferença entre Podologia e Pedicure',
+                description: 'Enquanto a pedicure foca na estética (corte de unhas, esmaltação, hidratação e beleza dos pés), a podologia trata a saúde dos pés. O podologista é um profissional de saúde com formação específica, capaz de diagnosticar e tratar problemas utilizando instrumentos esterilizados e técnicas médicas. A pedicure realiza serviços de beleza, já a podologia realiza tratamentos de saúde. Muitos problemas nos pés requerem cuidados especializados que vão além da estética, sendo essencial a atuação do podologista.'
+            },
+            'importancia': {
+                title: 'Por Que é Importante?',
+                description: 'Os pés são a base do nosso corpo e merecem cuidados especiais. Problemas nos pés podem afetar toda a postura, causando dores nas costas, joelhos e quadril. A podologia previne complicações graves, especialmente em grupos de risco como diabéticos, idosos, gestantes e atletas. Cuidar da saúde dos pés significa investir na qualidade de vida, mobilidade e bem-estar geral. Visitas regulares ao podologista ajudam a identificar precocemente problemas e a manter a saúde podológica em dia.'
+            }
+        };
+        
+        // Dados dos tratamentos
+        const treatmentsData = {
+            'unha-encravada': {
+                title: 'Unha Encravada',
+                description: 'A unha encravada ocorre quando a borda da unha cresce e penetra na pele ao seu redor, causando dor, vermelhidão e, em alguns casos, infecção. Nosso tratamento inclui a remoção cuidadosa da parte encravada, orientação sobre o corte correto das unhas e técnicas para prevenir recorrências. Utilizamos instrumentos esterilizados e técnicas minimamente invasivas para garantir seu conforto durante o procedimento.'
+            },
+            'calos': {
+                title: 'Calos e Calosidades',
+                description: 'Calos e calosidades são espessamentos da camada mais externa da pele, formados como resposta a pressões ou atritos constantes. Realizamos a remoção segura dessas lesões, aliviando a dor e o desconforto. Além do tratamento, orientamos sobre calçados adequados e oferecemos palmilhas especiais quando necessário para distribuir melhor a pressão nos pés e prevenir o reaparecimento dos calos.'
+            },
+            'micos-unha': {
+                title: 'Micose de Unha',
+                description: 'A micose de unha (onicomicose) é uma infecção causada por fungos que pode deixar as unhas espessas, descoloridas e quebradiças. Nosso tratamento envolve a limpeza profunda das unhas afetadas, aplicação de antifúngicos específicos e orientação sobre cuidados para evitar a propagação da infecção. Em casos mais avançados, podemos indicar tratamentos complementares para melhor eficácia.'
+            },
+            'fissuras': {
+                title: 'Fissura nos Pés',
+                description: 'As fissuras nos pés, especialmente nos calcanhares, são rachaduras na pele que podem causar dor e até sangramento. Realizamos hidratação profunda com produtos específicos para restaurar a elasticidade da pele, removemos as áreas ressecadas e aplicamos produtos que promovem a cicatrização. Também orientamos sobre cuidados diários para manter a hidratação dos pés e prevenir o reaparecimento das fissuras.'
+            },
+            'pes-diabeticos': {
+                title: 'Pés Diabéticos',
+                description: 'Pacientes diabéticos requerem cuidados especiais com os pés devido à possibilidade de redução da sensibilidade e dificuldade de cicatrização. Oferecemos avaliação completa dos pés, corte seguro das unhas, tratamento de calosidades e orientação sobre cuidados diários. Nosso objetivo é prevenir complicações como úlceras e infecções, mantendo a saúde dos pés de forma preventiva e segura.'
+            },
+            'profilaxia': {
+                title: 'Profilaxia Preventiva',
+                description: 'A profilaxia preventiva é a manutenção regular da saúde dos pés, incluindo corte correto das unhas, remoção de cutículas, limpeza, lixamento de calosidades e hidratação. Recomendamos visitas regulares para manter a saúde dos pés, prevenir problemas futuros e identificar precocemente qualquer alteração. É um cuidado essencial para quem busca bem-estar e qualidade de vida.'
+            }
+        };
+        
+        // Event listeners para os cards de podologia
+        document.querySelectorAll('.podology-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const podologyId = this.getAttribute('data-podology');
+                showPodologyDetails(podologyId);
+            });
+        });
+        
+        // Event listeners para os cards de tratamento
+        document.querySelectorAll('.treatment-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const treatmentId = this.getAttribute('data-treatment');
+                showTreatmentDetails(treatmentId);
+            });
+        });
+        
+        // Função para mostrar detalhes sobre podologia
+        function showPodologyDetails(podologyId) {
+            const podology = podologyData[podologyId];
+            const detailsContainer = document.getElementById('podology-details');
+            
+            detailsContainer.innerHTML = `
+                <h3 class="podology-detail-title">${podology.title}</h3>
+                <div class="podology-detail-content">
+                    <p>${podology.description}</p>
+                </div>
+                <button class="back-to-podology">Voltar</button>
+            `;
+            
+            detailsContainer.classList.add('active');
+            
+            // Rolar suavemente para a seção de detalhes
+            detailsContainer.scrollIntoView({ behavior: 'smooth' });
+            
+            // Adicionar evento ao botão de voltar
+            detailsContainer.querySelector('.back-to-podology').addEventListener('click', function() {
+                detailsContainer.classList.remove('active');
+                document.querySelector('.podology-section').scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+        
+        // Função para mostrar detalhes do tratamento
+        function showTreatmentDetails(treatmentId) {
+            const treatment = treatmentsData[treatmentId];
+            const detailsContainer = document.getElementById('treatment-details');
+            
+            detailsContainer.innerHTML = `
+                <h3 class="treatment-detail-title">${treatment.title}</h3>
+                <div class="treatment-detail-content">
+                    <p>${treatment.description}</p>
+                </div>
+                <button class="back-to-treatments">Voltar aos Tratamentos</button>
+            `;
+            
+            detailsContainer.classList.add('active');
+            
+            // Rolar suavemente para a seção de detalhes
+            detailsContainer.scrollIntoView({ behavior: 'smooth' });
+            
+            // Adicionar evento ao botão de voltar
+            detailsContainer.querySelector('.back-to-treatments').addEventListener('click', function() {
+                detailsContainer.classList.remove('active');
+                document.querySelector('.treatments-section').scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+        
+        // Animação de entrada conforme rolagem
+        function checkVisibility() {
+            const socialContainer = document.getElementById('social-container');
+            const aboutSection = document.getElementById('about-section');
+            const treatmentCards = document.querySelectorAll('.treatment-card');
+            const podologyCards = document.querySelectorAll('.podology-card');
+            
+            // Verificar se os elementos estão visíveis na tela
+            const socialRect = socialContainer.getBoundingClientRect();
+            const aboutRect = aboutSection.getBoundingClientRect();
+            
+            if (socialRect.top < window.innerHeight - 100) {
+                socialContainer.classList.add('visible');
+            }
+            
+            if (aboutRect.top < window.innerHeight - 100) {
+                aboutSection.classList.add('visible');
+            }
+            
+            // Animar cards de tratamento individualmente
+            treatmentCards.forEach((card, index) => {
+                const cardRect = card.getBoundingClientRect();
+                if (cardRect.top < window.innerHeight - 100) {
+                    setTimeout(() => {
+                        card.classList.add('visible');
+                    }, index * 100); // Delay progressivo para criar efeito cascata
+                }
+            });
+            
+            // Animar cards sobre podologia individualmente
+            podologyCards.forEach((card, index) => {
+                const cardRect = card.getBoundingClientRect();
+                if (cardRect.top < window.innerHeight - 100) {
+                    setTimeout(() => {
+                        card.classList.add('visible');
+                    }, index * 100); // Delay progressivo para criar efeito cascata
+                }
+            });
+        }
+        
+        // Verificar visibilidade ao carregar e ao rolar
+        window.addEventListener('load', checkVisibility);
+        window.addEventListener('scroll', checkVisibility);
+    </script>
+</body>
+</html>
