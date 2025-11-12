@@ -97,6 +97,44 @@
             font-weight: 500;
         }
         
+        /* Ícone Flutuante do WhatsApp */
+        .whatsapp-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 25px;
+            right: 25px;
+            background-color: #25d366;
+            color: white;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+        
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(37, 211, 102, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+            }
+        }
+        
         .map-container {
             display: flex;
             flex-direction: column;
@@ -650,6 +688,14 @@
                 margin-right: 0;
                 margin-bottom: 10px;
             }
+            
+            .whatsapp-float {
+                width: 55px;
+                height: 55px;
+                bottom: 20px;
+                right: 20px;
+                font-size: 26px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -698,10 +744,23 @@
             .about-text {
                 font-size: 1rem;
             }
+            
+            .whatsapp-float {
+                width: 50px;
+                height: 50px;
+                bottom: 15px;
+                right: 15px;
+                font-size: 24px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Ícone Flutuante do WhatsApp -->
+    <a href="https://wa.me/44998460231?text=Olá! Gostaria de mais informações sobre a Jessica Andrade Podologia Clínica" class="whatsapp-float" target="_blank" title="Fale conosco no WhatsApp">
+        <span style="font-size: 30px;">💬</span>
+    </a>
+    
     <header>
         <div class="container">
             <div class="logo-container">
@@ -1026,7 +1085,7 @@
             },
             'fissuras': {
                 title: 'Fissura nos Pés',
-                description: 'As fissuras nos pés, especialmente nos calcanhares, são rachaduras na pele que podem causar dor e até sangramento. Realizamos hidratação profunda com produtos específicos para restaurar a elasticidade da pele, removemos as áreas ressecadas e aplicamos produtos que promovem a cicatrização. Também orientamos sobre cuidados diários para manter a hidratação dos pés e prevenir o reaparecimento das fissuras.'
+                description: 'As fissuras nos pés, especialmente nos calcanhares, são rachaduras na pele que podem causar dor e até sangramento. Realizamos hidratação profunda com produtos específicos para restaurar a elasticidade da peau, removemos as áreas ressecadas e aplicamos produtos que promovem a cicatrização. Também orientamos sobre cuidados diários para manter a hidratação dos pés e prevenir o reaparecimento das fissuras.'
             },
             'pes-diabeticos': {
                 title: 'Pés Diabéticos',
